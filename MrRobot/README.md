@@ -36,5 +36,42 @@ In the command line at once I am going to create the `dictionaries` folder then 
 Then I do all the above in a similar way to `download the file with a txt` extension that I found referenced in robots.txt, I do a `cat` and wala! we found the first key : **073403c8a58a1f80d943455fb30724b9**
 <p align="center"><img src="https://i.imgur.com/4Lv3LZ4.png" align="center"></p>
 
+After seeing the first key, two remain to be obtained. I am going to clone a repository with a tool called `dirsearch`, check the python requirements but also if I want I can run it with ~ bash, then change the default configuration a bit to be able to view the 200, 300, 301 responses with that in mind to better organize the recognition task, I hope to get directory names or file that corresponds to the basic structure of any *content management system* or *technology*.
+<p align="center"><img src="https://i.imgur.com/PrdLsuo.png" align="center"></p>
+<p align="center"><img src="https://i.imgur.com/SyBQiK2.png" align="center"></p>
+
+After a few minutes I see the answers obtained on the terminal. Before executing with `python3 dirsearch.py -u HOST` I modify` default.conf` and put a filter for the response codes that I want to see only through the terminal, it is easier and we focus on the things that `we think are useful at this point of the investigation`; the reason why I wanted to see only the **200**, **300** and **301** is the following:
+|Responde Code | Notes | Reference|
+| :---:        | :---: | :---:    | 
+|200           |The most common form of cache entry is a successful result of a retrieval request: i.e., a 200 (OK) response to a GET request, which contains a representation of the resource identified by the request target | [Successful 2xx](https://tools.ietf.org/html/rfc7231#section-6.3.1)|
+|300           |The 300 (Multiple Choices) status code indicates that the target resource has more than one representation, each with its own more specific identifier, and information about the alternatives is being provided so that the user (or user agent) can select a preferred representation by redirecting its request to one or more of those identifiers.  In other words, the server desires that the user agent engage in reactive negotiation to select the most appropriate representation(s) for its needs | [Redirection 3xx](https://tools.ietf.org/html/rfc7231#section-6.4.1)|
+|301           |The 301 (Moved Permanently) status code indicates that the target resource has been assigned a new permanent URI and any future references to this resource ought to use one of the enclosed URIs. Clients with link-editing capabilities ought to automatically re-link references to the effective request URI to one or more of the new references sent by the server, where possible. The server SHOULD generate a Location header field in the response containing a preferred URI reference for the new permanent URI. The user agent MAY use the Location field value for automatic redirection.  The server's response payload usually contains a short hypertext note with a hyperlink to the new URI(s). | [Redirection 3xx](https://tools.ietf.org/html/rfc7231#section-6.4.2)|
+
+We are going to see the results through the terminal <p align="center"><img src="https://i.imgur.com/op2weqn.png" align="center"></p> 
+
+At the beginning of the scan it was also indicated that a *report* was going to be generated in TXT format, we are going to directly filter the 200 OK by console to see more quickly with `grep -n 200 *.txt` where `-n` show line number where string was found and `*.txt` I use it because the file name is long and also I already know that it's only a single file has been created with that extension :).Then I run the same line again but I add `-c` at the end, this counts the occurrences in this case of 200 and tells me that I have 23 results with that search term.
+
+<p align="center"><img src="https://i.imgur.com/5noHf0a.png" align="center"></p> 
+
+If I look at the file names of grep it is a Worpress installation [`wp-login.php`](https://developer.wordpress.org/reference/files/wp-login.php/) so I proceed to use another tool:` wpscan` to gather more information, probably the dictionary (which I initially found with robots. txt) `fsocity.dic` helps us to check its content in conjunction with the tool, so I go step by step again, now I'm interested in seeing the content of fsocity.dic, so ` cat fsocity.dic | more ` and returns the following:
+<p align="center"><img src="https://i.imgur.com/cYzX5fF.png" align="center"></p> 
+
+This is a file with many lines, I am going to try to normalize the content, such as a database, check if there are duplicate words or symbols, in the case that there were to eliminate them, leave only the words or symbols that are unique, with This allows us to reduce the analysis time when we go to make the user/password validation.
+The first thing I check is how many duplicates I have in fsocity.dic, using `sort fsocity.dic | uniq -c | more`
+<p align="center"><img src="https://i.imgur.com/SQaukSU.png" align="center"></p>
+
+I see that each line has an average repetition of up to 75 times, what interests me now is to remove what is additional and keep only the first occurrences of each iteration using `sort -u fsocity.dic | tee fsoc.dic` -> [TEE](https://www.man7.org/linux/man-pages/man1/tee.1.html).
+<p align="center"><img src="https://i.imgur.com/M8szOZc.png" align="center"></p>
+
+Once executed we have a new dictionary `fsoc.dic`,I execute again` sort fsoc.dic | uniq -c` and now only the number 1 appears in all the lines, thus indicating that there is only 1 single occurrence of each identifier in this dictionary, with this we improve the next step...
+<p align="center"><img src="https://i.imgur.com/cZlMxCd.png" align="center"></p>
+
+In short, sweeping and cleaning the dictionary obtained from robots.txt initially with **858160** possible *"combinations"* we end up with only **11451**
+<p align="center"><img src="https://i.imgur.com/nPPmYLb.png" align="center"></p>
+
+I run `wpscan` to see what information it returns, I don't have much hope but who knows ...
+<p align="center"><img src="https://i.imgur.com/Qio2vyS.png" align="center"></p>
+
+I see that the WP version is 4.3.1, with this in mind, what information do I get with the login area? Trying to enter as an administrator or some type of user with editor privileges from the wordpress control panel would be ideal to be able to do a reverse shell from "some" php file :)
 
 
