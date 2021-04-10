@@ -10,13 +10,13 @@ Based on the show, Mr. Robot. This VM has three *keys* hidden in different locat
 
 ## CTF Walk-Through
 ### Things we have to do to achieve attack vector recognition
-- [ ] Determine the IP address of the server/machine
-- [ ] List of open or working ports and services
-- [ ] Try to determine what type of content is that we will be able to access according to the information obtained in the audit
-- [ ] Observe the type of information or documentation that arises from the audit
-- [ ] Carry out an effective organization of the data we discover through the use of tools or lateral/vertical thinking, we must always remember that the information we find is always powerful with the correct logic.
+- [x] Determine the IP address of the server/machine
+- [x] List of open or working ports and services
+- [x] Try to determine what type of content is that we will be able to access according to the information obtained in the audit
+- [x] Observe the type of information or documentation that arises from the audit
+- [x] Carry out an effective organization of the data we discover through the use of tools or lateral/vertical thinking, we must always remember that the information we find is always powerful with the correct logic.
 
-##
+## First stage : recognition and information gathering
 
 I prefer to use the * to scan the segment, with the use of `ifconfig` I can see which IP is mine but I need to know that other IPs are currently active, so we use  `nmap 192.168.234.*`
 <p align="center"><img src="https://i.imgur.com/aEXHI0l.png" align="center"></p>
@@ -97,3 +97,36 @@ After a few minutes we have possible logins `elliot | Elliot | ELLIOT`, I create
 
 We check the content of the file and the console and see that there are 3 matches for the user and its variants
 <p align="center"><img src="https://i.imgur.com/nOiST4l.png" align="center"></p>
+
+I check to see what happens, I do not want to be left with doubts about the type of user permissions :) I enter the data, I see that there are only two registered users and the profiles that have.
+<p align="center"><img src="https://i.imgur.com/cP7sMl3.png" align="center"></p>
+
+I dig into the profile of **mich05654** and what I read in `Biographical Info` catches my attention, I have in mind just in case.
+
+## Second stage : Exploitation
+I already have the access credentials, I verify that they work without any problem, but I cannot be logging in this way every time I want to do something, so what comes to my mind is to have a reverse shell whenever I want, from where I want and how want it.
+This is easy to do, one enters the administration area, uploads the file and that's it, but I want to take advantage of the fact that I have the username and password to do it remotely with an xploit of `metasploit` :), basically, what it does is create a little plugin and it connects back to our machine and generates a reverse shell.
+<p align="center"><img src="https://i.imgur.com/qY6UWzn.png" align="center"></p>
+
+We look for what is available for wordpress by typing `search wordpres shell` and then we select the number 3
+<p align="center"><img src="https://i.imgur.com/oHbgT6a.png" align="center"></p>
+
+The next thing I do is see the configuration with `show options`, I am going to change the properties of the Payload (1) with the information of my IP and then the options of the Module (2) with all the data that I have been collecting
+<p align="center"><img src="https://i.imgur.com/hpvUByz.png" align="center"></p>
+
+<p align="center"><img src="https://i.imgur.com/pBmf8mo.png" align="center"></p>
+
+Everything is ready and configured to run with `exploit` but.... I get a message informing that the objective is not a wordpress but I know that it is not, I am going to look at the code of the module to see what happens ...
+
+<p align="center"><img src="https://i.imgur.com/QQbJjPN.png" align="center"></p>
+
+`nano /usr/share/metasploit-framework/modules/exploits/unix/webapp/wp_admin_shell_upload.rb`
+I commented out that line, save the changes and then I went back to reload on msf
+![image](https://user-images.githubusercontent.com/76487325/114287336-5df53b80-9a3c-11eb-9caf-e254f6a89be9.png)
+
+![image](https://user-images.githubusercontent.com/76487325/114287386-cb08d100-9a3c-11eb-946c-636bb82356e0.png)
+
+**We got the shell up and running on the host!**
+
+
+
