@@ -72,6 +72,28 @@ In short, sweeping and cleaning the dictionary obtained from robots.txt initiall
 I run `wpscan` to see what information it returns, I don't have much hope but who knows ...
 <p align="center"><img src="https://i.imgur.com/Qio2vyS.png" align="center"></p>
 
-I see that the WP version is 4.3.1, with this in mind, what information do I get with the login area? Trying to enter as an administrator or some type of user with editor privileges from the wordpress control panel would be ideal to be able to do a reverse shell from "some" php file :)
+I see that the WP version is 4.3.1, with this in mind, what information do I get with the login area? Trying to enter as an administrator or some type of user with editor privileges from the wordpress control panel would be ideal to be able to do a reverse shell from "some" php file :).
 
+The first thing that interests me is to see how the validation chain is composed with this version of wordpress, so I use a web proxy to see the logical flow step by step, among the tools that come to mind I have in mind ` ZAP` and `BURP`, I open Burp and see what happens (you can use one or the other, they both have many things you can do in their community versions).
 
+I go to `http://192.168.234.4/wp-login.php`, *wp-login.php* I found it when I did the directory recognition previously, there I can see the login screen of the site in general, the profile of access that that user has assigned to interact with that instance of wordpress ... so let's get to work!
+<p align="center"><img src="https://i.imgur.com/iPdHJpD.png" align="center"></p>
+ 
+I am going to use any username and password, what interests me is to be able to analyze what happens when I want to enter, to see how the validation sequence is made up, to be able to see from the proxy what information I obtain to better organize the following steps
+<p align="center"><img src="https://i.imgur.com/cm3YNVz.png" align="center"></p>
+
+Observing the result of the request, in line 15 we have the `log` field and the` pwd` field, we basically need the same structure to use when trying the validations using the dictionary that we prepared previously.
+One thing to keep in mind: this version of WP easily tells us the credential logic since if the `username` is incorrect, it is reported **ERROR: Invalid usename**... this is a great point of analysis, because if we know the user that is registered in the database, the only thing we would have to guess is the access password associated with that user, so first we will go through the user validation, when we have a match, just try with the password.
+<p align="center"><img src="https://i.imgur.com/HCseX4w.png" align="center"></p>
+
+In the sequence that Burp captured we see is POST. So we already know what type of request we have to make, where we have to send it and what parameters it must have to satisfy the validation logic. First I look for the username with the characters in the dictionary that I already have prepared, if there are positive results I will continue with the password, otherwise I will have to review the strategy again and start over until I achieve results. With `hydra` (*I could also use wpscan by the way*) I complete the necessary syntax to start trying to find an active user in the wp database.
+<p align="center"><img src="https://i.imgur.com/tCg4WEJ.png" align="center"></p>
+
+After a few minutes we have possible logins `elliot | Elliot | ELLIOT`
+<p align="center"><img src="https://i.imgur.com/mM7Dddc.png" align="center"></p>
+
+After a few minutes we have possible logins `elliot | Elliot | ELLIOT`, I create a new dictionary with `nano f-users.dic`, I insert the obtained variants, then I do `cat` to see the list and I re-execute the command prior to the verification of users but with some changes, now in `-L` I use the user dictionary specifically and for `-P` with the generic dictionary.
+<p align="center"><img src="https://i.imgur.com/naz1mwo.png" align="center"></p>
+
+We check the content of the file and the console and see that there are 3 matches for the user and its variants
+<p align="center"><img src="https://i.imgur.com/nOiST4l.png" align="center"></p>
