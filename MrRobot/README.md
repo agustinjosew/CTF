@@ -128,5 +128,56 @@ I commented out that line, save the changes and then I went back to reload on ms
 
 **We got the shell up and running on the host!**
 
+**ATTENTION !!! In case we see an error that the exploit could be executed but the session could not be created on our side, we check the firewall status of our terminal**
+<p align="center"><img src="https://i.imgur.com/ylKboxj.png" align="center"></p>
+
+Meterpreter is ready so let's see what we can do!, the first thing that comes to mind is to know where I am standing, for this I use [`pwd`](https://www.computerhope.com/unix/upwd.htm), then I use `cd /` to go to the root and do a `dir` to see what we have available...
+![image](https://user-images.githubusercontent.com/76487325/114404601-36a58800-9b7c-11eb-9ef0-5bf0ce997d6e.png)
+
+I have the home directory and inside the only thing I have is another directory `robot` I see the content, I can only see the` md5`, to see the content of the file `" key "` I need privileges that I do not have ... "yet"
+What I see from md5 is that it has a `robot` user associated with it, so the next step is to revert that hash to a more human-readable format (?)
+![image](https://i.imgur.com/lPBTUNt.png)
+
+The next step then is to use [hashcat](https://hashcat.net/hashcat/), I can use some web sites that are for this too, in any of the scenarios I must have the file in my possession to be able to do what I need, -> `download password.raw- md5`, I observe where it was downloaded, in this case in the base directory that I am using, I open a new terminal, I look for the file, I move it where I want to have it ordered and then I see the content again
+
+![image](https://i.imgur.com/hlXyvCP.png)
+
+In this case it is easy to see the extension of the file that refers to MD5, but what happens if in other cases we find something but we don't know what it might be? for that we can use `"hash-identifier"`
+![image](https://i.imgur.com/AlNpr0V.png)
+
+To use hashcat I copy the downloaded file with another name and extension **.txt**, in this way I have a copy of the original file and at the same time the use I give to the content is more specific, I use the following command:
+![image](https://i.imgur.com/5QDYXZk.png)
+
+I am not convinced by the result from hashcat using the dictionary that I got at the beginning of the pentest, I would have to use other dictionaries, which would take me longer than desired, so I try with one that is [online](https://hashes.com/en/decrypt/hash)
+
+![image](https://user-images.githubusercontent.com/76487325/114417741-3b703900-9b88-11eb-86fb-2990939f1c59.png)
+
+The output is different from "local" to "online"
+![image](https://user-images.githubusercontent.com/76487325/114417952-6f4b5e80-9b88-11eb-8348-d9e8dc183c83.png)
+
+Comparing the two results I see that the online has a sequence that in hashcat I can do it using what is called **Mask Attack** , in this method rather than trying every possible word, we’ll limit the attempts in a predefined charset and password length.
+
+A charset is defined by the characters allowed in the password.
+
+|Charset| Chars allowed|
+| :---: | :---:        |
+|?l = | abcdefghijklmnopqrstuvwxyz|
+|?u = | ABCDEFGHIJKLMNOPQRSTUVWXYZ|
+|?d = | 0123456789|
+|?h = | 0123456789abcdef|
+|?H = | 0123456789ABCDEF|
+|?s = | «space»!”#$%&'()*+,-./:;<=>?@[\]^_{|}~*|
+|?a = | ?l?u?d?s|
+|?b = | 0x00 – 0xff|
+
+The other thing we can play with, is the password length. To indicates the password length option, we will generally repeat the charset character. Here are a few examples :
+
+|Length | Meaning|
+|:---:  |:---:|
+|?l?l?l?l?l?l?l?l: | passwords between “aaaaaaaa” and “zzzzzzzz”|
+|password?d: | passwords between “password0” and “password9”|
+|?u?l?l: | passwords between “Aaa” and “Zzz”|
+
+So I could try the netx time :)...
 
 
