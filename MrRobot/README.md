@@ -178,6 +178,12 @@ The other thing we can play with, is the password length. To indicates the passw
 |password?d: | passwords between “password0” and “password9”|
 |?u?l?l: | passwords between “Aaa” and “Zzz”|
 
-So I could try the netx time :)...
+So I could try the next time :)...
 
 
+Well well well ..... we already have a shell, now we want to be able to authenticate as a "robot", so let's get to generate a connection through [TTY SHELL](https://netsec.ws/?p=337): `python -c 'import pty; pty.spawn("/bin/sh")'`
+
+Now we can scale the user and finally `cat` to see the content txt file without problems:
+![image](https://user-images.githubusercontent.com/76487325/114451561-c152ab00-9bad-11eb-9419-9ce78c518f36.png)
+
+Still got 1 more key to find!, since we exploited the host, and got in... our next step is to carry out `Post-Explotation` and further Enumeration on the internal side :).
