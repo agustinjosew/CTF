@@ -186,4 +186,4 @@ Well well well ..... we already have a shell, now we want to be able to authenti
 Now we can scale the user and finally `cat` to see the content txt file without problems:
 ![image](https://user-images.githubusercontent.com/76487325/114451561-c152ab00-9bad-11eb-9419-9ce78c518f36.png)
 
-Still got 1 more key to find!, since we exploited the host, and got in... our next step is to carry out `Post-Explotation` and further Enumeration on the internal side :).
+Still got 1 more key to find!, since we exploited the host, and got in...our next step is to carry out `Post-Explotation` and further Enumeration on the internal side :).
